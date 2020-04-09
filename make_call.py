@@ -12,10 +12,9 @@ app = Flask(__name__)
 @app.route("/voice", methods=['GET','POST'])
 def voice():
     resp = VoiceResponse()
-
+    resp.say('shelvin finish your work')
     resp.say('Hey beautiful say a country and we will tell you how they are doing now during this quarantine')
     resp.gather(input='speech',speechTimeout=1, action='/test')
-    
     return str(resp)
 
 
@@ -27,7 +26,6 @@ def test():
         speech = request.values['SpeechResult'].lower()
 
         if speech in list(df['Country']):
-            #row = df.loc[df['Country'] == speech]
             country = speech
             total_cases = df.loc[df.Country == speech,'TotalCases'].tolist()[0]
             total_deaths = df.loc[df.Country == speech,'TotalDeaths'].tolist()[0]
@@ -52,7 +50,7 @@ def data():
     URL = 'https://www.worldometers.info/coronavirus/'
     response = requests.get(URL)
     soup = BeautifulSoup(response.content, 'html.parser')
-    columns = ['Country', 'TotalCases', 'NewCases', 'TotalDeaths', 'NewDeaths', 'TotalRecovered', 'ActiveCases', 'SeriousCritical','9','10','11','12']
+    columns = ['Country', 'TotalCases', 'NewCases', 'TotalDeaths', 'NewDeaths', 'TotalRecovered', 'ActiveCases', 'SeriousCritical','9','10','11','12','13']
     df = pd.DataFrame(columns=columns)
 
 
@@ -64,15 +62,19 @@ def data():
         row = [td.text.replace('\n', '') for td in tds]
         df = df.append(pd.Series(row,index=columns), ignore_index=True)
     
+    print(df)
+    df = df[df.Country != '']
+    df = df[df.Country != 0]
     annoying_characters = ','
     df = (df.replace(" ",np.nan,inplace=False))
     df = (df.replace("",np.nan,inplace=False))
-
+    
     df = (df.fillna(0))
     df['TotalCases'] = df['TotalCases'].str.replace(annoying_characters, '').astype('float')
     df['TotalDeaths'] = df['TotalDeaths'].str.replace(annoying_characters, '').astype('float')
     df['ActiveCases'] = df['ActiveCases'].str.replace(annoying_characters, '').astype('float')
     df['SeriousCritical'] = df['SeriousCritical'].str.replace(annoying_characters, '').astype('float')
+    
     
     for index, row in df.iterrows():
         row = row['Country'].lower()

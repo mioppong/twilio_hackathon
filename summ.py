@@ -10,7 +10,7 @@ import numpy as np
 URL = 'https://www.worldometers.info/coronavirus/'
 response = requests.get(URL)
 soup = BeautifulSoup(response.content, 'html.parser')
-columns = ['Country', 'TotalCases', 'NewCases', 'TotalDeaths', 'NewDeaths', 'TotalRecovered', 'ActiveCases', 'SeriousCritical','9','10','11','12']
+columns = ['Country', 'TotalCases', 'NewCases', 'TotalDeaths', 'NewDeaths', 'TotalRecovered', 'ActiveCases', 'SeriousCritical','9','10','11','12','13']
 df = pd.DataFrame(columns=columns)
 
 
@@ -26,10 +26,14 @@ annoying_characters = ','
 print(df)
 df = (df.replace(" ",np.nan,inplace=False))
 df = (df.replace("",np.nan,inplace=False))
+df = df.fillna(0)
 
+#df = df[df.Country != 0]
 df['TotalDeaths'] = df['TotalDeaths'].str.replace(annoying_characters, '').astype('float')
 for index, row in df.iterrows():
+    print(df.at[index,'Country'])
     row = row['Country'].lower()
+    
     df.at[index,'Country'] = df.at[index,'Country'].lower()
 
 print(df)
